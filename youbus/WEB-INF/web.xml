@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<web-app>
+	<display-name>Youbus Servlet</display-name>
+	<description>Youbus</description>
+	<servlet>
+		<servlet-name>AllBuses</servlet-name>
+		<servlet-class>AllBusesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllBuses</servlet-name>
+		<url-pattern>/buses</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AllTrips</servlet-name>
+		<servlet-class>AllTripsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllTrips</servlet-name>
+		<url-pattern>/trips</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AllRoutes</servlet-name>
+		<servlet-class>AllRoutesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllRoutes</servlet-name>
+		<url-pattern>/routes</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AllLocations</servlet-name>
+		<servlet-class>AllLocationsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllLocations</servlet-name>
+		<url-pattern>/locations</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AllDrivers</servlet-name>
+		<servlet-class>AllDriversServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllDrivers</servlet-name>
+		<url-pattern>/drivers</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>AllConductors</servlet-name>
+		<servlet-class>AllConductorsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllConductors</servlet-name>
+		<url-pattern>/conductors</url-pattern>
+	</servlet-mapping>
+</web-app>

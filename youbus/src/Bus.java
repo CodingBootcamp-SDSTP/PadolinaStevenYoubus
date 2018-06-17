@@ -3,16 +3,16 @@ public class Bus
 	final int ID;
 	private String name;
 	private String plateNo;
-	private int driverID;
-	private int conductorID;
+	private String driver;
+	private String conductor;
 	private int capacity;
 
-	public Bus(int id, String name, String plateNo, int driverID, int conductorID, int capacity) {
+	public Bus(int id, String name, String plateNo, String driver, String conductor, int capacity) {
 		ID = id;
 		this.name = name;
 		this.plateNo = plateNo;
-		this.driverID = driverID;
-		this.conductorID = conductorID;
+		this.driver = driver;
+		this.conductor = conductor;
 		this.capacity = capacity;
 	}
 
@@ -24,12 +24,12 @@ public class Bus
 		return(plateNo);
 	}
 
-	public int getDriverID() {
-		return(driverID);
+	public String getDriver() {
+		return(driver);
 	}
 	
-	public int getConductorID() {
-		return(conductorID);
+	public String getConductor() {
+		return(conductor);
 	}
 
 	public int getCapacity() {

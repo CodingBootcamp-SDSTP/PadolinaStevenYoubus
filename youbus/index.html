@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Youbus</title>
+		<style>
+			body {
+				height: 100vh;
+				width: 100%;
+			}
+			#table {
+				position: absolute;
+				right: 0;
+				top: 150px;
+				bottom: 0;
+				left: 0px;
+				margin: 20px;
+			}
+			#table, th, tr, td {
+				border: 1px solid gray;
+				border-collapse: collapse;
+			}
+			td, th {
+				padding : 5px 20px 5px 20px;
+				height : 50px;
+				text-align: center;
+			}
+		</style>
+		<script>
+			window.onload = function() {
+				document.getElementById("trips").onclick = function() {
+					getRequest("/youbus/trips");
+				};
+				document.getElementById("buses").onclick = function() {
+					getRequest("/youbus/buses");
+				};
+				document.getElementById("routes").onclick = function() {
+					getRequest("/youbus/routes");
+				};
+				document.getElementById("locations").onclick = function() {
+					getRequest("/youbus/locations");
+				};
+				document.getElementById("drivers").onclick = function() {
+					getRequest("/youbus/drivers");
+				};
+				document.getElementById("conductors").onclick = function() {
+					getRequest("/youbus/conductors");
+				};
+			}
+
+			function getRequest(url) {
+				let rq = new XMLHttpRequest();
+				rq.onreadystatechange = function() {
+					if(rq.readyState == 4) {
+						let trips = JSON.parse(rq.responseText);
+						let a = document.getElementById("content");
+						createTable(trips, a);
+					}
+				};
+				rq.open('GET', url, true);
+				rq.send();
+			}
+
+			function createTable(trips, a) {
+				let t = document.getElementById("table");
+				let con = document.getElementById("contents");
+				if(t) {
+					con.removeChild(t);
+				}
+				t = document.createElement('table');
+				t.id = "table";
+				let header = document.createElement('tr');
+				fillHeader(header, trips[0]);
+				t.appendChild(header);
+				for(trip of trips) {
+					let tr = document.createElement('tr');
+					for(key in trip) {
+						let td = document.createElement('td');
+						td.innerHTML = trip[key];
+						tr.appendChild(td);
+					}
+					t.appendChild(tr);
+				}
+				con.appendChild(t);
+			}
+
+			function fillHeader(header, obj) {
+				for(key in obj) {
+					let th = document.createElement('th');
+					th.innerHTML = key.replace(/_/g, " ").toUpperCase();
+					header.appendChild(th);
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="headerwrapper">
+			<div id="header"><h1>Youbus</h1></div>
+		</div>
+		<div id ="contentwrapper">
+			<div id ="contents">
+				<button id="trips">All Trips</button>
+				<button id="buses">All Buses</button>
+				<button id="routes">All Routes</button>
+				<button id="locations">All Locations</button>
+				<button id="drivers">All Drivers</button>
+				<button id="conductors">All Conductors</button>
+				<p id="content"></p>
+			</div>
+		</div>
+	</body>
+</html>

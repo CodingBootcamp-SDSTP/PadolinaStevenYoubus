@@ -2,13 +2,13 @@ public class Route
 {
 	final int ID;
 	String name;
-	int origin;
-	int destination;
+	String origin;
+	String destination;
 	int distance;
 	int duration;
 	String rate;
 
-	public Route(int id, String name, int origin, int destination, int distance, int duration, String rate) {
+	public Route(int id, String name, String origin, String destination, int distance, int duration, String rate) {
 		ID = id;
 		this.name = name;
 		this.origin = origin;
@@ -22,11 +22,11 @@ public class Route
 		return(name);
 	}
 
-	public int getOrigin() {
+	public String getOrigin() {
 		return(origin);
 	}
 
-	public int getDestination() {
+	public String getDestination() {
 		return(destination);
 	}
 
