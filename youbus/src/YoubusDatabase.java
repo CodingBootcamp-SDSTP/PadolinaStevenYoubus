@@ -304,4 +304,32 @@ public class YoubusDatabase
 		}
 		return(crews);
 	}
+
+	public boolean createObject(String fileLine) throws Exception {
+		String[] details = fileLine.split("@");
+		int len = details.length - 1;
+		boolean success = false;
+		String d = details[len];
+		switch(d) {
+			case "route":
+				success = addRoute(new Route(1, details[0], details[1], details[2], Integer.parseInt(details[3]), Integer.parseInt(details[4]), details[5]));
+				break;
+			case "bus":
+				success = addBus(new Bus(1, details[0], details[1], details[2], details[3], Integer.parseInt(details[4])));
+				break;
+			case "trip":
+				success = addTrip(new BusTrip.Builder().route(details[0]).bus(details[1]).date(LocalDate.parse(details[2])).departureTime(LocalTime.parse(details[3])).build());
+				break;
+			case "Driver":
+				success = addCrew(new BusDriver(1, details[0], details[1], details[2], LocalDate.parse(details[3]), details[4]));
+				break;
+			case "Conductor":
+				success = addCrew(new BusConductor(1, details[0], details[1], details[2], LocalDate.parse(details[3])));
+				break;
+			case "location":
+				success = addLocation(new Location(1, details[0], details[1]));
+				break;
+		}
+		return(success);
+	}
 }

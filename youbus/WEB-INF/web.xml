@@ -50,4 +50,20 @@
 		<servlet-name>AllConductors</servlet-name>
 		<url-pattern>/conductors</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>AllCrews</servlet-name>
+		<servlet-class>AllCrewsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllCrews</servlet-name>
+		<url-pattern>/crews</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Add</servlet-name>
+		<servlet-class>AddServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Add</servlet-name>
+		<url-pattern>/add</url-pattern>
+	</servlet-mapping>
 </web-app>
