@@ -59,11 +59,75 @@
 		<url-pattern>/crews</url-pattern>
 	</servlet-mapping>
 	<servlet>
+		<servlet-name>AllBusTypes</servlet-name>
+		<servlet-class>AllBusTypesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AllBusTypes</servlet-name>
+		<url-pattern>/bustypes</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Seats</servlet-name>
+		<servlet-class>SeatsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Seats</servlet-name>
+		<url-pattern>/seats/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>BookTrip</servlet-name>
+		<servlet-class>BookTripServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>BookTrip</servlet-name>
+		<url-pattern>/booktrip/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Register</servlet-name>
+		<servlet-class>RegisterServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Register</servlet-name>
+		<url-pattern>/register</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Session</servlet-name>
+		<servlet-class>SessionServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Session</servlet-name>
+		<url-pattern>/session/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
 		<servlet-name>Add</servlet-name>
 		<servlet-class>AddServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Add</servlet-name>
 		<url-pattern>/add</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Logout</servlet-name>
+		<servlet-class>LogoutServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Logout</servlet-name>
+		<url-pattern>/logout/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>User</servlet-name>
+		<servlet-class>UserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>User</servlet-name>
+		<url-pattern>/users/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>Login</servlet-name>
+		<servlet-class>LoginServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Login</servlet-name>
+		<url-pattern>/login/*</url-pattern>
 	</servlet-mapping>
 </web-app>

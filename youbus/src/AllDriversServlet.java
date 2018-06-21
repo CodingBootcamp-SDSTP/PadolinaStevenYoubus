@@ -8,8 +8,8 @@ import java.lang.Class;
 
 public class AllDriversServlet extends HttpServlet
 {
-	YoubusDatabase youbusDB;
-	StringBuffer sb;
+	private YoubusDatabase youbusDB;
+	private StringBuffer sb;
 
 	public void init() throws ServletException {
 		youbusDB = YoubusDatabase.instance();

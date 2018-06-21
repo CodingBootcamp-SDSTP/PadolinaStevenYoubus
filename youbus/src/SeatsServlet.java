@@ -3,10 +3,10 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.lang.StringBuffer;
 
-public class AllBusesServlet extends HttpServlet
+public class SeatsServlet extends HttpServlet
 {
-	private YoubusDatabase youbusDB;
-	private StringBuffer sb;
+	YoubusDatabase youbusDB;
+	StringBuffer sb;
 
 	public void init() throws ServletException {
 		youbusDB = YoubusDatabase.instance();
@@ -17,7 +17,8 @@ public class AllBusesServlet extends HttpServlet
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
 		sb.append("[ ");
-		JSONFormatter.appendAsJSON(sb, youbusDB.getAllBuses());
+		String[] details = request.getPathInfo().split("/");
+		JSONFormatter.appendAsJSON(sb, youbusDB.getSeats(details[1], details[2]));
 		sb.append("]");
 		out.println(sb.toString());
 		sb.delete(0, sb.length());

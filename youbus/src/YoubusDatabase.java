@@ -79,21 +79,32 @@ public class YoubusDatabase
 	public boolean addTrip(BusTrip trip) {
 		Boolean flag = false;
 		PreparedStatement stmt = null;
+		ResultSet rs = null;
 		try {
-			stmt = conn.prepareStatement("INSERT INTO tbtrips ( routeid, busid, tripdate, departure, availableseats ) VALUES ( ?, ?, ?, ?, (SELECT capacity from tbbuses where busid=?));");
-			stmt.setString(1, trip.ROUTE);
-			stmt.setString(2, trip.BUS);
-			stmt.setString(3, trip.DATE.toString());
-			stmt.setString(4, trip.DEPARTURE_TIME.toString());
-			stmt.setString(5, trip.BUS);
-			stmt.executeUpdate();
-			flag = true;
+			stmt = conn.prepareStatement("SELECT tripstatus from tbtrips where busid=? and tripstatus='pending'");
+			stmt.setString(1, trip.BUS);
+			rs = stmt.executeQuery();
+			if(rs.next()) {
+				flag = false;
+			}
+			else {
+				stmt = conn.prepareStatement("INSERT INTO tbtrips ( routeid, busid, tripdate, departure, availableseats, tripname ) VALUES ( ?, ?, ?, ?, (SELECT capacity from viewbuses where busid=?), ?);");
+				stmt.setString(1, trip.ROUTE);
+				stmt.setString(2, trip.BUS);
+				stmt.setString(3, trip.DATE.toString());
+				stmt.setString(4, trip.DEPARTURE_TIME.toString());
+				stmt.setString(5, trip.BUS);
+				stmt.setString(6, trip.NAME);
+				stmt.executeUpdate();
+				flag = true;
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 		finally {
 			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
 		}
 		return(flag);
 	}
@@ -144,12 +155,71 @@ public class YoubusDatabase
 		Boolean flag = false;
 		PreparedStatement stmt = null;
 		try {
-			stmt = conn.prepareStatement("INSERT INTO tbbuses ( plateno, driverid, conductorid, capacity, busname ) VALUES ( ?, ?, ?, ?, ? );");
-			stmt.setString(1, bus.getPlateNo());
-			stmt.setString(2, bus.getDriver());
-			stmt.setString(3, bus.getConductor());
-			stmt.setInt(4, bus.getCapacity());
-			stmt.setString(5, bus.getName());
+			stmt = conn.prepareStatement("INSERT INTO tbbuses ( plateno, driverid, conductorid, bustype, busname ) VALUES ( ?, ?, ?, ?, ? );");
+			stmt.setString(1, bus.PLATE_NO);
+			stmt.setString(2, bus.DRIVER);
+			stmt.setString(3, bus.CONDUCTOR);
+			stmt.setString(4, bus.BUS_TYPE);
+			stmt.setString(5, bus.NAME);
+			stmt.executeUpdate();
+			stmt = conn.prepareStatement("SELECT LAST_INSERT_ID();");
+			ResultSet rs = stmt.executeQuery();
+			if(rs.next()) {
+				int i = rs.getInt("LAST_INSERT_ID()");
+				flag = addSeats(bus.BUS_TYPE, i, bus.getLayout());
+				if(flag == false) {
+					stmt = conn.prepareStatement("DELETE FROM tbbuses where busid=?;");
+					stmt.setInt(1, i);
+					stmt.executeUpdate();
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+		}
+		return(flag);
+	}
+
+	public String addUser(User user) {
+		String flag = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = conn.prepareStatement("INSERT INTO tbusers ( firstname, lastname, sex, birthdate ) VALUES ( ?, ?, ?, ? );");
+			stmt.setString(1, user.FIRSTNAME);
+			stmt.setString(2, user.LASTNAME);
+			stmt.setString(3, user.SEX);
+			stmt.setString(4, user.BIRTHDATE.toString());
+			stmt.executeUpdate();
+			stmt = conn.prepareStatement("SELECT LAST_INSERT_ID();");
+			rs = stmt.executeQuery();
+			if(rs.next()) {
+				flag = rs.getString("LAST_INSERT_ID()");
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
+		}
+		return(flag);
+	}
+
+	public boolean addUserAccount(UserAccount account) {
+		Boolean flag = false;
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement("INSERT INTO tbuseraccounts ( userid, email, username, password, type ) VALUES ( ?, ?, ?, ?, ? );");
+			stmt.setString(1, account.getUserID());
+			stmt.setString(2, account.getEmail());
+			stmt.setString(3, account.getUsername());
+			stmt.setString(4, account.getPassword());
+			stmt.setString(5, account.getType());
 			stmt.executeUpdate();
 			flag = true;
 		}
@@ -158,6 +228,75 @@ public class YoubusDatabase
 		}
 		finally {
 			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+		}
+		return(flag);
+	}
+
+	public boolean addSeats(String type, int id, String[][] layout) {
+		Boolean flag = false;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = conn.prepareStatement("SELECT capacity FROM tbbustypes where bustypeid=?;");
+			stmt.setString(1, type);
+			rs = stmt.executeQuery();
+			if(rs.next()) {
+				int capacity = rs.getInt("capacity");
+				stmt = conn.prepareStatement("INSERT into tbbusseats ( busid, seatno ) VALUES ( ?, ? );");
+				for(int i = 0; i < layout.length; i++) {
+					for(int j = 0; j < layout[i].length; j++) {
+						stmt.setInt(1, id);
+						stmt.setString(2, layout[i][j]);
+						stmt.executeUpdate();
+					}
+				}
+				flag = true;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
+		}
+		return(flag);
+	}
+
+	public boolean bookTrip(Booking booking) {
+		Boolean flag = false;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try {
+			stmt = conn.prepareStatement("SELECT seatid from tbbookings where tripid=? and seatid=?;");
+			stmt.setString(1, booking.getTripID());
+			stmt.setString(2, booking.getSeatID());
+			rs = stmt.executeQuery();
+			if(rs.next()) {
+				flag = false;
+			}
+			else {
+				stmt = conn.prepareStatement("INSERT INTO tbbookings ( tripid, busid, seatid, userid ) VALUES ( ?, ?, ?, ? );");
+				stmt.setString(1, booking.getTripID());
+				stmt.setString(2, booking.getBusID());
+				stmt.setString(3, booking.getSeatID());
+				stmt.setString(4, booking.getUser());
+				stmt.executeUpdate();
+				stmt = conn.prepareStatement("UPDATE tbbusseats SET occupied=true WHERE seatid=?;");
+				stmt.setString(1, booking.getSeatID());
+				stmt.executeUpdate();
+				stmt = conn.prepareStatement("UPDATE tbtrips SET availableseats=availableseats-1 WHERE tripid=?;");
+				stmt.setString(1, booking.getTripID());
+				stmt.executeUpdate();
+				flag = true;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
 		}
 		return(flag);
 	}
@@ -187,6 +326,34 @@ public class YoubusDatabase
 		}
 	}
 
+	public ArrayList<BusSeat> getSeats(String flag, String id) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		ArrayList<BusSeat> seats = new ArrayList<BusSeat>();
+		try {
+			if("busid".equals(flag)) {
+				stmt = conn.prepareStatement("SELECT * FROM tbbusseats where busid=?;");
+			}
+			else {
+				stmt = conn.prepareStatement("SELECT * FROM tbbusseats where seatid=?;");
+			}
+			stmt.setString(1, id);
+			rs = stmt.executeQuery();
+			while(rs.next()) {
+				seats.add(new BusSeat(rs.getInt("seatid"), rs.getString("busid"), rs.getString("seatno"), rs.getBoolean("occupied")));
+			}
+			stmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
+		}
+		return(seats);
+	}
+
 	public ArrayList<BusTrip> getAllTrips() {
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -195,7 +362,7 @@ public class YoubusDatabase
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery("SELECT * FROM viewtrips;");
 			while(rs.next()) {
-				trips.add(new BusTrip.Builder().id(rs.getInt("tripid")).bus(rs.getString("busname")).driver(rs.getString("driver")).conductor(rs.getString("conductor")).origin(rs.getString("origin")).destination(rs.getString("destination")).date(LocalDate.parse(rs.getString("tripdate"))).departureTime(LocalTime.parse(rs.getString("departure"))).duration(rs.getInt("duration")).rate(rs.getInt("rate")).availableSeats(rs.getInt("availableseats")).build());
+				trips.add(new BusTrip.Builder().id(rs.getInt("tripid")).name(rs.getString("tripname")).bus(rs.getString("busname")).busID(rs.getInt("busid")).driver(rs.getString("driver")).conductor(rs.getString("conductor")).origin(rs.getString("origin")).destination(rs.getString("destination")).date(LocalDate.parse(rs.getString("tripdate"))).departureTime(LocalTime.parse(rs.getString("departure"))).duration(rs.getInt("duration")).rate(rs.getInt("rate")).capacity(rs.getInt("capacity")).availableSeats(rs.getInt("availableseats")).build());
 			}
 			stmt.close();
 		}
@@ -217,7 +384,7 @@ public class YoubusDatabase
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery("SELECT * FROM viewbuses;");
 			while(rs.next()) {
-				buses.add(new Bus(rs.getInt("busid"), rs.getString("busname"), rs.getString("plateno"), rs.getString("driver"), rs.getString("conductor"), rs.getInt("capacity")));
+				buses.add(new Bus.Builder().id(rs.getInt("busid")).name(rs.getString("busname")).plateNo(rs.getString("plateno")).driver(rs.getString("driver")).conductor(rs.getString("conductor")).busType(rs.getString("bustype")).aircon(rs.getBoolean("aircon")).restroom(rs.getBoolean("restroom")).capacity( rs.getInt("capacity")).build());
 			}
 			stmt.close();
 		}
@@ -229,6 +396,28 @@ public class YoubusDatabase
 			try { if(rs != null) rs.close(); } catch (Exception e) {};
 		}
 		return(buses);
+	}
+
+	public ArrayList<BusType> getAllBuseTypes() {
+		Statement stmt = null;
+		ResultSet rs = null;
+		ArrayList<BusType> busTypes = new ArrayList<BusType>();
+		try {
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery("SELECT * FROM tbbustypes;");
+			while(rs.next()) {
+				busTypes.add(new BusType(rs.getInt("bustypeid"), rs.getString("bustypename"), rs.getBoolean("aircon"), rs.getBoolean("restroom"), rs.getInt("capacity")));
+			}
+			stmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
+		}
+		return(busTypes);
 	}
 
 	public ArrayList<Route> getAllRoutes() {
@@ -275,6 +464,53 @@ public class YoubusDatabase
 		return(locations);
 	}
 
+	public UserAccount getAccount(String username) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		UserAccount account = null;
+		try {
+			stmt = conn.prepareStatement("SELECT * FROM tbuseraccounts where username=?;");
+			stmt.setString(1, username);
+			rs = stmt.executeQuery();
+			while(rs.next()) {
+				account = new UserAccount(rs.getInt("accountid"), rs.getString("userid"), rs.getString("email"), rs.getString("username"), rs.getString("password"), rs.getString("type"));
+			}
+			stmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
+		}
+		return(account);
+	}
+
+	public User getUser(String userID) {
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		User user = null;
+		try {
+			stmt = conn.prepareStatement("SELECT * FROM tbusers where userid=?;");
+			stmt.setString(1, userID);
+			rs = stmt.executeQuery();
+			while(rs.next()) {
+				user = new User(rs.getInt("userid"), rs.getString("firstname"), rs.getString("lastname"), rs.getString("sex"), LocalDate.parse(rs.getString("birthdate")));
+			}
+			stmt.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try { if(stmt != null) stmt.close(); } catch (Exception e) {};
+			try { if(rs != null) rs.close(); } catch (Exception e) {};
+		}
+		return(user);
+	}
+
+
 	public ArrayList<BusCrew> getAllCrews(int flag) {
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -306,7 +542,7 @@ public class YoubusDatabase
 	}
 
 	public boolean createObject(String fileLine) throws Exception {
-		String[] details = fileLine.split("@");
+		String[] details = fileLine.split("~");
 		int len = details.length - 1;
 		boolean success = false;
 		String d = details[len];
@@ -315,10 +551,10 @@ public class YoubusDatabase
 				success = addRoute(new Route(1, details[0], details[1], details[2], Integer.parseInt(details[3]), Integer.parseInt(details[4]), details[5]));
 				break;
 			case "bus":
-				success = addBus(new Bus(1, details[0], details[1], details[2], details[3], Integer.parseInt(details[4])));
+				success = addBus(new Bus.Builder().name(details[0]).plateNo(details[1]).driver(details[2]).conductor(details[3]).busType(details[4]).build());
 				break;
 			case "trip":
-				success = addTrip(new BusTrip.Builder().route(details[0]).bus(details[1]).date(LocalDate.parse(details[2])).departureTime(LocalTime.parse(details[3])).build());
+				success = addTrip(new BusTrip.Builder().name(details[4]).route(details[0]).bus(details[1]).date(LocalDate.parse(details[2])).departureTime(LocalTime.parse(details[3])).build());
 				break;
 			case "Driver":
 				success = addCrew(new BusDriver(1, details[0], details[1], details[2], LocalDate.parse(details[3]), details[4]));
@@ -328,6 +564,15 @@ public class YoubusDatabase
 				break;
 			case "location":
 				success = addLocation(new Location(1, details[0], details[1]));
+				break;
+			case "booking":
+				success = bookTrip(new Booking(1, details[0], details[1], details[2], details[3]));
+				break;
+			case "user":
+				String userID = addUser(new User(1, details[0], details[1], details[2], LocalDate.parse(details[3])));
+				if(userID != null) {
+					success = addUserAccount(new UserAccount(1, userID, details[4], details[5], details[6], details[7]));
+				}
 				break;
 		}
 		return(success);

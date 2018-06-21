@@ -3,7 +3,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.lang.StringBuffer;
 
-public class AllBusesServlet extends HttpServlet
+public class AllBusTypesServlet extends HttpServlet
 {
 	private YoubusDatabase youbusDB;
 	private StringBuffer sb;
@@ -17,7 +17,7 @@ public class AllBusesServlet extends HttpServlet
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
 		sb.append("[ ");
-		JSONFormatter.appendAsJSON(sb, youbusDB.getAllBuses());
+		JSONFormatter.appendAsJSON(sb, youbusDB.getAllBuseTypes());
 		sb.append("]");
 		out.println(sb.toString());
 		sb.delete(0, sb.length());

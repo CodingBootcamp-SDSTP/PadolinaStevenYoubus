@@ -1,0 +1,30 @@
+body {
+	height: 100vh;
+	width: 100%;
+}
+
+#contentwrapper {
+	display: table;
+	height: 100%;
+	width: 100%;
+}
+
+#content {
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+}
+
+.inputs {
+	width: 200px;
+}
+
+.buttons {
+	width: 200px;
+	height: 50px;
+}
+
+.cancel {
+	width: 200px;
+	height: 30px;
+}

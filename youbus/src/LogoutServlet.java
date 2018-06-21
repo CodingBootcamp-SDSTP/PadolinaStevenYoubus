@@ -3,22 +3,25 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.lang.StringBuffer;
 
-public class AllBusesServlet extends HttpServlet
+public class LogoutServlet extends HttpServlet
 {
-	private YoubusDatabase youbusDB;
-	private StringBuffer sb;
+	YoubusDatabase youbusDB;
+	StringBuffer sb;
+	SessionManager sm;
 
 	public void init() throws ServletException {
 		youbusDB = YoubusDatabase.instance();
 		sb = new StringBuffer();
+		sm = SessionManager.instance();
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
-		sb.append("[ ");
-		JSONFormatter.appendAsJSON(sb, youbusDB.getAllBuses());
-		sb.append("]");
+		String accountID = request.getPathInfo().split("/")[2];
+		if(sm.endSession(accountID)) {
+			sb.append("{ \"logout\" : \"ok\" }");
+		}
 		out.println(sb.toString());
 		sb.delete(0, sb.length());
 	}

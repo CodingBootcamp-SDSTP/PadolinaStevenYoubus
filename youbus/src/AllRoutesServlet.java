@@ -2,14 +2,11 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.lang.StringBuffer;
-import java.util.ArrayList;
-import java.lang.reflect.Field;
-import java.lang.Class;
 
 public class AllRoutesServlet extends HttpServlet
 {
-	YoubusDatabase youbusDB;
-	StringBuffer sb;
+	private YoubusDatabase youbusDB;
+	private StringBuffer sb;
 
 	public void init() throws ServletException {
 		youbusDB = YoubusDatabase.instance();

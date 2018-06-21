@@ -3,7 +3,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.lang.StringBuffer;
 
-public class AddServlet extends HttpServlet
+public class AddUserServlet extends HttpServlet
 {
 	private StringBuffer details;
 	private StringBuffer sb;
@@ -19,10 +19,9 @@ public class AddServlet extends HttpServlet
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/plain");
 		PrintWriter out = response.getWriter();
+		br = request.getReader();
+		generateObjectString(readContent());
 		try {
-			br = request.getReader();
-			System.out.println(details.toString());
-			generateObjectString(readContent());
 			out.println((youbusDB.createObject(sb.toString())) ? "Data was added successfully" : "Adding new data failed.");
 		}
 		catch(Exception e) {
@@ -42,12 +41,10 @@ public class AddServlet extends HttpServlet
 			while((fileLine = br.readLine()) != null) {
 				details.append(fileLine);
 			}
+			br.close();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-		}
-		finally {
-			try { br.close(); }catch(Exception e) { e.printStackTrace(); }
 		}
 		return(details.toString());
 	}
